@@ -1,0 +1,39 @@
+# ------------------------------------------------------------------------- # 
+
+CREATE TABLE public."Postcode" (
+	"Postcode_id" VARCHAR (10) NULL,
+	CONSTRAINT "Postcode_pkey" PRIMARY KEY ("Postcode_id")
+);
+
+CREATE TABLE public."Property" (
+	"Property_id" int NOT NULL,
+	CONSTRAINT "Property_pkey" PRIMARY KEY ("Property_id")
+);
+
+CREATE TABLE public."PropertyPostcodes" (
+	"PostcodePostcodeId" VARCHAR (10) NOT NULL,
+    "PropertyPropertyId" int NOT NULL,
+  CONSTRAINT "PropertyPostcodes_pkey" PRIMARY KEY ("PropertyPropertyId", "PostcodePostcodeId"),
+  CONSTRAINT "PropertyPostcodes_PostcodePostcodeId_fkey" FOREIGN KEY ("PostcodePostcodeId") REFERENCES public."Postcode"("Postcode_id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "PropertyPostcodes_PropertyPropertyId_fkey" FOREIGN KEY ("PropertyPropertyId") REFERENCES public."Property"("Property_id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE public."Transaction" (
+	"Transaction_id" int NOT NULL,
+    "PropertyPropertyId" int NOT NULL,
+	CONSTRAINT "Transaction_pkey" PRIMARY KEY ("Transaction_id")
+);
+ALTER TABLE public."Transaction" ADD CONSTRAINT "Transaction_PropertyPropertyId_fkey" FOREIGN KEY ("PropertyPropertyId") REFERENCES public."Property"("Property_id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+# ------------------------------------------------------------------------------ #
+
+SELECT *, "B"."Property_id"
+   FROM "Transaction"
+         INNER JOIN (
+           SELECT *
+           FROM "Property"
+           INNER JOIN "PropertyPostcodes"
+               ON "Property"."Property_id" = "PropertyPostcodes"."PropertyPropertyId"
+            WHERE "PropertyPostcodes"."PostcodePostcodeId"='EC1A'
+         ) "B"
+         ON "Transaction"."PropertyPropertyId" = "B"."Property_id"
